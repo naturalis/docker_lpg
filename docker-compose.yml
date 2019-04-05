@@ -1,0 +1,101 @@
+version: '1'
+
+services:
+
+  prometheus-server:
+    image: prom/prometheus
+    networks:
+      - web
+    ports:
+      - 9090:9090
+    volumes:
+      - /opt/monitoring/prometheus-conf.yml:/etc/prometheus.yml
+      - /data/prometheus:/prometheus/data/
+    command:
+      - '--config.file=/etc/prometheus.yml'
+    restart: unless-stopped
+    mem_limit: 500m
+
+  node-exporter:
+    image: prom/node-exporter
+    networks:
+      - web
+    ports:
+      - 9100:9100
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro,rslave
+    command:
+      - '--path.rootfs=/rootfs'
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - --collector.filesystem.ignored-mount-points
+      - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
+    restart: unless-stopped
+    mem_limit: 500m
+
+  loki:
+    image: grafana/loki:master
+    networks:
+      - web
+    ports:
+      - "3100:3100"
+    volumes:
+      - /opt/monitoring/loki-conf.yml:/etc/loki/local-config.yaml
+      - /data/monitoring/loki:/tmp/loki/
+    command: -config.file=/etc/loki/local-config.yaml
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:6.0.0
+    ports:
+      - "3000:3000"
+    volumes:
+      - /opt/monitoring/grafana-conf.yml:/etc/grafana/grafana.ini
+      - /opt/monitoring/datasources:/etc/grafana/provisioning
+      - /opt/monitoring/datasources.yml:/etc/grafana/provisioning/datasources.yml
+      - /data/monitoring/grafana:/var/lib/grafana
+    networks:
+      - web
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:master
+    networks:
+      - web
+    volumes:
+      - /opt/monitoring/promtail-conf.yml:/etc/promtail/docker-config.yaml
+#      - /opt/prometheus/promtail-positions.yml:/tmp/positions.yaml
+      - /var/log:/var/log
+    command: -config.file=/etc/promtail/docker-config.yaml
+    depends_on:
+      - loki
+
+  traefik:
+    image: traefik:1.7.4
+    container_name: traefik
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - default
+      - web
+    logging:
+      driver: "json-file"
+      options:
+        max-size: '10m'
+        max-file: '5'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${BASE_PATH:-/data}/traefiklogs/traefik.log:/var/log/traefik.log
+      - ${TRAEFIK_TOML_FILE:-./traefik.toml}:/traefik.toml
+      - ${CERTDIR:-/etc/letsencrypt}:/etc/letsencrypt
+
+networks:
+    default:
+    web:
+        external: true
