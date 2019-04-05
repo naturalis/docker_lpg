@@ -37,7 +37,7 @@ services:
       - --collector.filesystem.ignored-mount-points
       - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
     restart: unless-stopped
-#    mem_limit: 500m
+    mem_limit: 500m
     logging:
       driver: "json-file"
       options:
@@ -64,7 +64,6 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - /opt/monitoring/grafana-conf.yml:/etc/grafana/grafana.ini
       - /opt/monitoring/datasources:/etc/grafana/provisioning
       - /opt/monitoring/datasources.yml:/etc/grafana/provisioning/datasources.yml
       - /data/monitoring/grafana:/var/lib/grafana
