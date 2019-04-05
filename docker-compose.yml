@@ -73,8 +73,8 @@ services:
     depends_on:
       - loki
     restart: unless-stopped
-    env:
-     - .env
+    env_file:
+      - .env
     logging:
       driver: "json-file"
       options:
