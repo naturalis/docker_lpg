@@ -1,4 +1,4 @@
-version: '1'
+version: '3'
 
 services:
 
@@ -15,6 +15,10 @@ services:
       - '--config.file=/etc/prometheus.yml'
     restart: unless-stopped
     mem_limit: 500m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: '10m'
 
   node-exporter:
     image: prom/node-exporter
@@ -34,6 +38,10 @@ services:
       - "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"
     restart: unless-stopped
     mem_limit: 500m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: '10m'
 
   loki:
     image: grafana/loki:master
@@ -46,6 +54,10 @@ services:
       - /data/monitoring/loki:/tmp/loki/
     command: -config.file=/etc/loki/local-config.yaml
     restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: '10m'
 
   grafana:
     image: grafana/grafana:6.0.0
@@ -61,6 +73,12 @@ services:
     depends_on:
       - loki
     restart: unless-stopped
+    env:
+     - .env
+    logging:
+      driver: "json-file"
+      options:
+        max-size: '10m'
 
   promtail:
     image: grafana/promtail:master
@@ -73,6 +91,10 @@ services:
     command: -config.file=/etc/promtail/docker-config.yaml
     depends_on:
       - loki
+    logging:
+      driver: "json-file"
+      options:
+        max-size: '10m'
 
   traefik:
     image: traefik:1.7.4
@@ -84,16 +106,15 @@ services:
     networks:
       - default
       - web
-    logging:
-      driver: "json-file"
-      options:
-        max-size: '10m'
-        max-file: '5'
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${BASE_PATH:-/data}/traefiklogs/traefik.log:/var/log/traefik.log
       - ${TRAEFIK_TOML_FILE:-./traefik.toml}:/traefik.toml
       - ${CERTDIR:-/etc/letsencrypt}:/etc/letsencrypt
+    logging:
+      driver: "json-file"
+      options:
+        max-size: '10m'
 
 networks:
     default:
