@@ -13,6 +13,8 @@ services:
       - /data/monitoring/prometheus:/prometheus/data/
     command:
       - '--config.file=/etc/prometheus.yml'
+    links:
+      - alertmanager:alertmanager
     restart: unless-stopped
 #    mem_limit: 500m
     logging:
