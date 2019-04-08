@@ -9,12 +9,19 @@ services:
     ports:
       - 9090:9090
     volumes:
-      - ./prometheus-conf.yml:/etc/prometheus.yml
+      - ./prometheus/:/etc/prometheus/
       - /data/monitoring/prometheus:/prometheus/data/
     command:
-      - '--config.file=/etc/prometheus.yml'
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
     links:
       - alertmanager:alertmanager
+      - cadvisor:cadvisor
+    depends_on:
+      - cadvisor
     restart: unless-stopped
 #    mem_limit: 500m
     logging:
@@ -45,6 +52,17 @@ services:
       options:
         max-size: '10m'
 
+  cadvisor:
+    image: google/cadvisor
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 8080:8080
+    restart: always
+
   loki:
     image: grafana/loki:master
     networks:
@@ -52,7 +70,7 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - ./loki-conf.yml:/etc/loki/local-config.yaml
+      - ./loki/loki-conf.yml:/etc/loki/local-config.yaml
       - /data/monitoring/loki:/tmp/loki/
     command: -config.file=/etc/loki/local-config.yaml
     restart: unless-stopped
@@ -66,8 +84,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./datasources:/etc/grafana/provisioning
-      - ./datasources.yml:/etc/grafana/provisioning/datasources.yml
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/provisioning:/etc/grafana/provisioning
       - /data/monitoring/grafana:/var/lib/grafana
     networks:
       - web
@@ -87,7 +105,7 @@ services:
     networks:
       - web
     volumes:
-      - ./promtail-conf.yml:/etc/promtail/docker-config.yaml
+      - ./loki/promtail-conf.yml:/etc/promtail/docker-config.yaml
 #      - /opt/prometheus/promtail-positions.yml:/tmp/positions.yaml
       - /var/log:/var/log
     command: -config.file=/etc/promtail/docker-config.yaml
