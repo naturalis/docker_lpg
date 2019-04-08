@@ -96,6 +96,21 @@ services:
       options:
         max-size: '10m'
 
+  alertmanager:
+    image: prom/alertmanager:v0.12.0
+    ports:
+      - 9093:9093
+    volumes:
+      - ./alertmanager/:/etc/alertmanager/
+    restart: always
+    command:
+      - '-config.file=/etc/alertmanager/config.yml'
+      - '-storage.path=/alertmanager'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: '10m'
+
   traefik:
     image: traefik:1.7.4
     container_name: traefik
