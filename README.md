@@ -8,7 +8,7 @@ This puppet script configures a complete docker-compose setup.
 
 The following folders need to be created:
 - /opt/monitoring/datasources
-- /data/monitoring/{[loki/prometheus/grafana/datasources]}
+- /data/monitoring/{[loki/prometheus/grafana]}
 
 ## Grafana
 
