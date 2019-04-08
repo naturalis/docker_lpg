@@ -1,7 +1,12 @@
+global:
+  slack_api_url: '<slack_webhook_url>'
+
 route:
-    receiver: 'pager'
+  receiver: 'slack-notifications'
+  group_by: [alertname, node]
 
 receivers:
-    - name: 'pager'
-      webhook_configs:
-      - url: https://ngrok.io # replace with webhook url
+- name: 'slack-notifications'
+  slack_configs:
+  - channel: '#alerts'
+    text: 'https://internal.myorg.net/wiki/alerts/{{ .GroupLabels.node }}/{{ .GroupLabels.alertname }}'
