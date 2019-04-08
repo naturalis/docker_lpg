@@ -10,7 +10,7 @@ services:
       - 9090:9090
     volumes:
       - ./prometheus-conf.yml:/etc/prometheus.yml
-      - /data/prometheus:/prometheus/data/
+      - /data/monitoring/prometheus:/prometheus/data/
     command:
       - '--config.file=/etc/prometheus.yml'
     restart: unless-stopped
