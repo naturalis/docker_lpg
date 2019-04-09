@@ -1,7 +1,7 @@
 # docker_lpg
 Puppet role definition for deployment of naturalis loki+prometheus+grafana server
 
-As an extra cadvisor and alertmanager are added.
+As an extra alertmanager is added.
 
 Docker-compose
 --------------

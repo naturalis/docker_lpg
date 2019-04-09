@@ -20,9 +20,6 @@ services:
       - '--web.enable-lifecycle'
     links:
       - alertmanager:alertmanager
-      - cadvisor:cadvisor
-    depends_on:
-      - cadvisor
     restart: unless-stopped
 #    mem_limit: 500m
     logging:
@@ -53,20 +50,6 @@ services:
       driver: "json-file"
       options:
         max-size: '10m'
-
-  cadvisor:
-    image: google/cadvisor
-    networks:
-      - web
-    container_name: cadvisor
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:rw
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-    ports:
-      - 8080:8080
-    restart: always
 
   loki:
     image: grafana/loki:master
@@ -99,6 +82,12 @@ services:
     depends_on:
       - loki
       - prometheus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.backend=grafana"
+      - "traefik.docker.network=web"
+      - "traefik.frontend.rule=Host:loki-test.naturalis.nl"
+      - "traefik.port=3000"
     restart: unless-stopped
     env_file:
       - .env
@@ -152,6 +141,7 @@ services:
     ports:
       - 80:80
       - 443:443
+      - 8080:8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${BASE_PATH:-/data}/traefiklogs/traefik.log:/var/log/traefik.log
