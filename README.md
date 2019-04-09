@@ -14,10 +14,11 @@ The following folders need to be created:
 
 ## Grafana
 
-As datasources you can set:
-
-- Loki >>
+- Loki datasource >
 `http://loki:3100`
 
-- Prometheus >
-`server: http://prometheus:9090/`
+- Prometheus datasource (server) >
+`http://prometheus:9090/`
+
+- Alertmanager url >
+`http://alertmanager:9093`
