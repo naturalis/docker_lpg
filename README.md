@@ -1,4 +1,4 @@
-# docker_lpg
+# docker-lpg
 Puppet role definition for deployment of naturalis loki+prometheus+grafana server
 
 As an extra alertmanager is added.
