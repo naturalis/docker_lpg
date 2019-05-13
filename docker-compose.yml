@@ -60,7 +60,7 @@ services:
       - "3100:3100"
     volumes:
       - ./loki/loki-conf.yml:/etc/loki/local-config.yaml
-      - /data/monitoring/loki:/tmp/loki/
+      - loki_data:/tmp/loki/
     command: -config.file=/etc/loki/local-config.yaml
     restart: unless-stopped
     logging:
@@ -78,7 +78,7 @@ services:
     volumes:
       - ./grafana/dashboards:/var/lib/grafana/dashboards
       - ./grafana/provisioning:/etc/grafana/provisioning
-      - /data/monitoring/grafana:/var/lib/grafana
+      - grafana_data:/var/lib/grafana
     depends_on:
       - loki
       - prometheus
@@ -152,7 +152,11 @@ services:
       options:
         max-size: '10m'
 
+volumes:
+  grafana_data:
+  loki_data:
+
 networks:
-    default:
-    web:
-        external: true
+  default:
+  web:
+    external: true
