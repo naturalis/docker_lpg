@@ -86,7 +86,7 @@ services:
       - "traefik.enable=true"
       - "traefik.backend=grafana"
       - "traefik.docker.network=web"
-      - "traefik.frontend.rule=Host:loki-test.naturalis.nl"
+      - "traefik.frontend.rule=Host:lpg.naturalis.nl"
       - "traefik.port=3000"
     restart: unless-stopped
     env_file:

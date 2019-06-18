@@ -34,3 +34,15 @@ scrape_configs:
     static_configs:
       - targets:
         - 145.136.246.226:9100
+
+  - job_name: 'fw-a2a'
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - 145.136.246.221:9100
+
+  - job_name: 'fw-a2b'
+    scrape_interval: 5s
+    static_configs:
+      - targets:
+        - 145.136.246.222:9100
