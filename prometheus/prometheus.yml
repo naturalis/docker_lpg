@@ -46,3 +46,8 @@ scrape_configs:
     static_configs:
       - targets:
         - 145.136.246.222:9100
+
+  - job_name: 'museum'
+    scrape_interval: 5s
+    file_sd_configs:
+      - files: ['museum.yml']
